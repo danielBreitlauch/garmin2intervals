@@ -9,6 +9,7 @@ from pathlib import Path
 
 from garmin2intervals.client import GarminClient
 from garmin2intervals.config import load_settings
+from garmin2intervals.naming import build_filename, read_fit_summary, reverse_geocode
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,10 +33,18 @@ def main() -> None:
 
     for activity in activities:
         activity_id = activity["activityId"]
-        out_path = ACTIVITIES_DIR / f"{activity_id}.fit"
         fit_bytes = client.download_activity_fit(activity_id)
-        out_path.write_bytes(fit_bytes)
-        print(f"- {out_path} ({activity.get('activityName')})")
+        raw_path = ACTIVITIES_DIR / f"{activity_id}.fit"
+        raw_path.write_bytes(fit_bytes)
+
+        summary = read_fit_summary(fit_bytes)
+        location = None
+        if summary.start_lat is not None and summary.start_lon is not None:
+            location = reverse_geocode(summary.start_lat, summary.start_lon)
+        final_path = raw_path.rename(
+            ACTIVITIES_DIR / build_filename(summary, location, activity_id)
+        )
+        print(f"- {final_path}")
 
 
 if __name__ == "__main__":
