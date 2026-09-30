@@ -105,3 +105,14 @@ def build_filename(
         parts.append(_format_duration(summary.duration_s))
     parts.append(str(activity_id))
     return "_".join(parts) + suffix
+
+
+def intervals_external_id(summary: FitSummary) -> str | None:
+    """`external_id` matching this account's pre-existing intervals.icu
+    activities' own convention (their upload source named files
+    `YYYY-MM-DD-HH-MM-SS.fit`), so new uploads use the same identity shape.
+    None if the FIT file has no start time to build one from.
+    """
+    if summary.start_time_local is None:
+        return None
+    return summary.start_time_local.strftime("%Y-%m-%d-%H-%M-%S") + ".fit"

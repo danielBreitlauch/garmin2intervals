@@ -27,12 +27,15 @@ involvement is needed.
 - [x] Download activities as FIT files, renamed by date/location/duration -
       see `garmin2intervals/naming.py`
 - [x] intervals.icu activity fetch + dedup against Garmin's activity list by
-      local start time, so re-running only downloads what's actually new -
-      see `garmin2intervals/intervals.py` / `sync.py` - verified against the
-      real account (13 pre-existing September activities correctly excluded)
+      local start time and moving duration, so re-running only downloads
+      what's actually new - see `garmin2intervals/intervals.py` / `sync.py`
 - [x] Dockerfile + docker-compose.yml to run the sync as a polling loop -
       see "Running with Docker" below
-- [ ] intervals.icu upload client (only fetching is implemented so far)
+- [x] intervals.icu upload - `IntervalsClient.upload_activity()`, wired into
+      `garmin2intervals-download-activities` - verified end-to-end against
+      the real accounts: a genuinely new Garmin activity was downloaded,
+      uploaded, confirmed present on intervals.icu with the right name/type,
+      and a second run correctly saw it as already synced (no re-upload)
 
 ## Setup
 
@@ -51,7 +54,8 @@ APIs. To verify against your actual accounts:
 # Garmin login only (completes MFA once if needed, cached in GARMINTOKENS after)
 uv run garmin2intervals-smoke-test
 
-# Downloads Garmin activities not already on intervals.icu into ./activities/
+# Downloads Garmin activities not already on intervals.icu into ./activities/,
+# then uploads each one to intervals.icu
 uv run garmin2intervals-download-activities
 ```
 

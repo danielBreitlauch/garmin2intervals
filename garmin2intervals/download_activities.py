@@ -1,5 +1,5 @@
 """Manual test: download recent Garmin activities not already on intervals.icu
-as FIT files into ./activities/.
+as FIT files into ./activities/, then upload each one to intervals.icu.
 
 Not part of the pytest suite (nothing in tests/ should hit the network) -
 run directly with `uv run garmin2intervals-download-activities`.
@@ -12,7 +12,12 @@ from pathlib import Path
 from garmin2intervals.client import GarminClient
 from garmin2intervals.config import load_settings
 from garmin2intervals.intervals import IntervalsClient
-from garmin2intervals.naming import build_filename, read_fit_summary, reverse_geocode
+from garmin2intervals.naming import (
+    build_filename,
+    intervals_external_id,
+    read_fit_summary,
+    reverse_geocode,
+)
 from garmin2intervals.sync import existing_signatures, find_new_activities
 
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +39,7 @@ def main() -> None:
     activities = client.get_activities(limit=DEFAULT_LIMIT)
     print(f"Garmin has {len(activities)} recent activities.")
 
+    intervals = None
     if settings.intervals_api_key:
         intervals = IntervalsClient(settings.intervals_api_key, settings.intervals_athlete_id)
         oldest = (date.today() - timedelta(days=INTERVALS_LOOKBACK_DAYS)).isoformat()
@@ -42,7 +48,7 @@ def main() -> None:
         activities = find_new_activities(activities, existing)
         print(f"{len(activities)} of those aren't on intervals.icu yet.")
     else:
-        print("INTERVALS_API_KEY not set - skipping the intervals.icu diff.")
+        print("INTERVALS_API_KEY not set - skipping the intervals.icu diff/upload.")
 
     if not activities:
         return
@@ -64,6 +70,15 @@ def main() -> None:
             ACTIVITIES_DIR / build_filename(summary, location, activity_id)
         )
         print(f"- {final_path}")
+
+        if intervals is not None:
+            result = intervals.upload_activity(
+                fit_bytes,
+                filename=final_path.name,
+                external_id=intervals_external_id(summary),
+                name=activity.get("activityName"),
+            )
+            print(f"  -> uploaded to intervals.icu as {result.get('id')}")
 
 
 if __name__ == "__main__":

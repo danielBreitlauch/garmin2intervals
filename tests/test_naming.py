@@ -7,6 +7,7 @@ import requests
 from garmin2intervals.naming import (
     FitSummary,
     build_filename,
+    intervals_external_id,
     read_fit_summary,
     reverse_geocode,
 )
@@ -64,6 +65,24 @@ def test_build_filename_formats_hours():
     name = build_filename(summary, "Berlin", 1)
 
     assert name == "2026-09-27_1557_Berlin_2h31m_1.fit"
+
+
+def test_intervals_external_id_matches_existing_upload_convention():
+    summary = FitSummary(
+        start_time_local=datetime(2026, 9, 19, 19, 29, 6),
+        duration_s=None,
+        distance_m=None,
+        start_lat=None,
+        start_lon=None,
+    )
+
+    assert intervals_external_id(summary) == "2026-09-19-19-29-06.fit"
+
+
+def test_intervals_external_id_none_without_start_time():
+    summary = FitSummary(None, None, None, None, None)
+
+    assert intervals_external_id(summary) is None
 
 
 def test_reverse_geocode_returns_first_matching_address_key():
