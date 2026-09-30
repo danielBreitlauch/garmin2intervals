@@ -13,7 +13,7 @@ from garmin2intervals.client import GarminClient
 from garmin2intervals.config import load_settings
 from garmin2intervals.intervals import IntervalsClient
 from garmin2intervals.naming import build_filename, read_fit_summary, reverse_geocode
-from garmin2intervals.sync import existing_start_times, find_new_activities
+from garmin2intervals.sync import existing_signatures, find_new_activities
 
 logging.basicConfig(level=logging.INFO)
 
@@ -38,7 +38,7 @@ def main() -> None:
         intervals = IntervalsClient(settings.intervals_api_key, settings.intervals_athlete_id)
         oldest = (date.today() - timedelta(days=INTERVALS_LOOKBACK_DAYS)).isoformat()
         newest = date.today().isoformat()
-        existing = existing_start_times(intervals.get_activities(oldest, newest))
+        existing = existing_signatures(intervals.get_activities(oldest, newest))
         activities = find_new_activities(activities, existing)
         print(f"{len(activities)} of those aren't on intervals.icu yet.")
     else:
