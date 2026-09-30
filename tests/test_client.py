@@ -1,4 +1,6 @@
-from unittest.mock import MagicMock, patch
+import io
+import zipfile
+from unittest.mock import ANY, patch
 
 import pytest
 from garminconnect import GarminConnectAuthenticationError
@@ -54,3 +56,16 @@ def test_connectapi_passthrough(mock_garmin):
 
     assert result == {"ok": True}
     mock_garmin.connectapi.assert_called_once_with("/some/path", params={"x": "1"})
+
+
+def test_download_activity_fit_unzips_single_file(mock_garmin):
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as archive:
+        archive.writestr("12345.fit", b"FIT_BYTES")
+    mock_garmin.download_activity.return_value = buf.getvalue()
+    client = GarminClient(email="a@b.com", password="pw", tokenstore=".tokens")
+
+    fit_bytes = client.download_activity_fit(12345)
+
+    assert fit_bytes == b"FIT_BYTES"
+    mock_garmin.download_activity.assert_called_once_with("12345", dl_fmt=ANY)

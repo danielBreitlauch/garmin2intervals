@@ -15,6 +15,9 @@ wheels/
 .env
 .garmin_tokens/
 
+# Downloaded activity data
+/activities/
+
 # pytest-cov output
 .coverage
 .pytest_cache/

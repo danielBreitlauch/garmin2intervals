@@ -13,7 +13,9 @@ logs in with the child's own credentials - no parent-account involvement
 needed.
 """
 
+import io
 import logging
+import zipfile
 from typing import Any
 
 from garminconnect import Garmin, GarminConnectAuthenticationError
@@ -52,3 +54,17 @@ class GarminClient:
     def connectapi(self, path: str, params: dict[str, Any] | None = None) -> Any:
         """Call an arbitrary Garmin Connect API endpoint not otherwise wrapped."""
         return self._garmin.connectapi(path, params=params)
+
+    def download_activity_fit(self, activity_id: int | str) -> bytes:
+        """Download an activity's original FIT file.
+
+        Garmin's "original" download is a zip containing a single FIT file
+        (or, rarely, a folder of them for multi-sport activities) - unzip and
+        return the first file's bytes.
+        """
+        zip_bytes = self._garmin.download_activity(
+            str(activity_id), dl_fmt=Garmin.ActivityDownloadFormat.ORIGINAL
+        )
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as archive:
+            name = archive.namelist()[0]
+            return archive.read(name)

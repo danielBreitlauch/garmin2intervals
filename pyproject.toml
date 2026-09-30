@@ -12,6 +12,7 @@ dependencies = [
 
 [project.scripts]
 garmin2intervals-smoke-test = "garmin2intervals.cli:main"
+garmin2intervals-download-activities = "garmin2intervals.download_activities:main"
 
 [build-system]
 requires = ["hatchling"]
