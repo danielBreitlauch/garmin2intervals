@@ -13,6 +13,8 @@ class Settings:
     garmin_email: str
     garmin_password: str
     garmin_tokenstore: str
+    intervals_api_key: str | None
+    intervals_athlete_id: str
 
 
 def load_settings() -> Settings:
@@ -23,4 +25,8 @@ def load_settings() -> Settings:
         garmin_email=email,
         garmin_password=password,
         garmin_tokenstore=tokenstore,
+        intervals_api_key=os.getenv("INTERVALS_API_KEY"),
+        # "0" is intervals.icu's alias for "the athlete owning the API key" -
+        # no need to know your own numeric athlete id.
+        intervals_athlete_id=os.getenv("INTERVALS_ATHLETE_ID", "0"),
     )
