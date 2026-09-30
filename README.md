@@ -43,7 +43,9 @@ uv run garmin2intervals-download-activities
 
 ## Running with Docker
 
-The container polls `garmin2intervals-download-activities` on an interval (`SYNC_INTERVAL_SECONDS`, default 1800s) - see `entrypoint.sh`.
+The container runs `garmin2intervals-download-activities` once and exits.
+Rerunning it on a schedule (e.g. a systemd timer calling `docker compose run
+--rm sync` periodically) is left to the deployment, not the container itself.
 
 Complete the first (possibly MFA) login on the host first, via the manual
 smoke test above - that's what creates `.garmin_tokens/`, which is
@@ -52,8 +54,7 @@ bind-mounted into the container so it doesn't need to repeat that login:
 ```
 cp .env.example .env   # fill in credentials, plus HOST_UID/HOST_GID (`id -u`/`id -g`)
 uv run garmin2intervals-smoke-test   # first login, completes MFA if needed
-docker compose up -d
-docker compose logs -f
+docker compose run --rm sync
 ```
 
 Downloaded activities land in `./activities/` on the host either way (both

@@ -31,7 +31,6 @@ RUN groupadd --system app && useradd --system --gid app --home-dir /app app
 
 COPY --from=builder /app/.venv ./.venv
 COPY --from=builder /app/garmin2intervals ./garmin2intervals
-COPY entrypoint.sh ./
 
 # No `uv` binary needed at runtime - the venv's own console-script entry points
 # (garmin2intervals-*) are put on PATH and run directly.
@@ -42,11 +41,10 @@ ENV PATH="/app/.venv/bin:$PATH" \
 # docker-compose.yml, which bind-mounts both from the host so downloaded
 # activities and the cached Garmin login survive a container restart/rebuild.
 RUN mkdir -p activities .garmin_tokens \
-    && chmod +x entrypoint.sh \
     && chown -R app:app /app
 
 VOLUME ["/app/activities", "/app/.garmin_tokens"]
 
 USER app
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["garmin2intervals-download-activities"]

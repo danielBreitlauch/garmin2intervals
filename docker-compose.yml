@@ -2,11 +2,8 @@ services:
   sync:
     build: .
     image: garmin2intervals:latest
-    restart: unless-stopped
     env_file:
       - .env
-    environment:
-      SYNC_INTERVAL_SECONDS: "1800"
     volumes:
       - ./activities:/app/activities
       - ./.garmin_tokens:/app/.garmin_tokens
