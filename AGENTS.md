@@ -6,9 +6,9 @@
 
 ## Project
 
-A small package, `garmin2intervals`, that authenticates against Garmin Connect (via the `garminconnect` library) and pushes activities to intervals.icu - specifically for a child/family account that Garmin does not allow to log in independently (see `garmin2intervals/client.py` for how the parent-session workaround works), which is why intervals.icu's own native Garmin sync can't be used for that account.
+A small package, `garmin2intervals`, that authenticates against Garmin Connect (via the `garminconnect` library, using the child's own credentials directly - see `garmin2intervals/client.py`) and pushes activities to intervals.icu. This exists because intervals.icu's own native Garmin sync goes through an OAuth/SSO flow that Garmin blocks for child/family accounts, even though direct email/password login still works for them.
 
-- **`client.py`** - Garmin Connect auth (token-cached) and activity fetching, including the child/family account path.
+- **`client.py`** - Garmin Connect auth (token-cached) and activity fetching.
 - **`intervals.py`** - intervals.icu API client for uploading/creating activities.
 - **`sync.py`** - orchestrates client -> intervals.
 

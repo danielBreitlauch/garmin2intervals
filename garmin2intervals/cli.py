@@ -30,7 +30,7 @@ def main() -> None:
         print(f"Login failed: {e}")
         raise SystemExit(1) from e
 
-    print("Login OK. Fetching 5 most recent activities for the parent account...")
+    print("Login OK. Fetching 5 most recent activities...")
     for activity in client.get_activities(limit=5):
         print(f"- {activity.get('activityName')} ({activity.get('startTimeLocal')})")
 

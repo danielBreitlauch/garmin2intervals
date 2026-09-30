@@ -1,19 +1,16 @@
 """Garmin Connect authentication and activity fetching.
 
-Garmin child/family accounts are blocked from independent SSO login (the
-`garminconnect` library detects this explicitly - see its client.py's "Widget
-login: account may be a Garmin child/family account" warning). There is no
-separate username/password for a child account to hand to intervals.icu's own
-Garmin integration, which is why that native sync doesn't work for one.
+Garmin child/family accounts can't complete the browser SSO/OAuth flow that
+intervals.icu's own Garmin partner integration relies on (the `garminconnect`
+library detects and rejects this explicitly - see its client.py's "Widget
+login: account may be a Garmin child/family account" warning) - that's why
+that native sync doesn't work for a child account.
 
-The only way in is through the parent's own authenticated session: Garmin's
-app/web UI lets the parent "switch" to viewing a child's activities from
-their family view. That mechanism isn't part of any public API and isn't
-implemented by `garminconnect`, so `get_family_members` / `get_activities_for`
-below are the integration point for it once the real Garmin Connect API calls
-behind that switch have been identified (see README's "Child account access"
-section) - `connectapi` is exposed on `GarminClient` as an escape hatch for
-calling that endpoint directly in the meantime.
+They *can* still log in directly with their own email/password through the
+library's other strategies (the ones behind the mobile app rather than the
+web SSO widget), confirmed against a real child account. So this client just
+logs in with the child's own credentials - no parent-account involvement
+needed.
 """
 
 import logging
@@ -48,14 +45,10 @@ class GarminClient:
             )
 
     def get_activities(self, start: int = 0, limit: int = 20) -> list[dict[str, Any]]:
-        """Return the parent account's own recent activities."""
+        """Return the account's recent activities."""
         activities = self._garmin.get_activities(start=start, limit=limit)
         return activities if isinstance(activities, list) else []
 
     def connectapi(self, path: str, params: dict[str, Any] | None = None) -> Any:
-        """Call an arbitrary Garmin Connect API endpoint.
-
-        Escape hatch for the child/family activity endpoint until it's
-        identified and wrapped in a dedicated method - see module docstring.
-        """
+        """Call an arbitrary Garmin Connect API endpoint not otherwise wrapped."""
         return self._garmin.connectapi(path, params=params)
