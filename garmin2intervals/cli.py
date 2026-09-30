@@ -1,11 +1,3 @@
-"""Manual smoke test against the real Garmin Connect API.
-
-Not part of the pytest suite (nothing in tests/ should hit the network) -
-run directly with `uv run garmin2intervals` to verify credentials, complete
-MFA once (cached afterwards in GARMINTOKENS), and confirm activities come
-back for the parent account.
-"""
-
 import logging
 
 from garminconnect import GarminConnectAuthenticationError

@@ -1,17 +1,5 @@
 """Diffs Garmin's activity list against what's already on intervals.icu, so
 only genuinely new activities get downloaded (and, eventually, uploaded).
-
-Matched on local start time (exact to the second) *and* moving duration
-(approximately - see _DURATION_TOLERANCE_S/_PCT below). Start time alone
-isn't a safe key: unlike `external_id` (which for this account's existing
-intervals.icu activities is a filename-derived string from an earlier,
-unrelated upload process, not a Garmin activity id) it's at least present on
-both sides, but two unrelated activities can plausibly share a start second
-(e.g. a bug re-splitting one Garmin activity into several starting at the
-same instant), so duration is required to agree too before treating it as a
-duplicate. The tolerance (rather than an exact match) is there because
-Garmin's and intervals.icu's own recomputation of moving time from the same
-FIT data can differ by a few seconds.
 """
 
 from dataclasses import dataclass
@@ -46,9 +34,7 @@ def _parse_garmin_signature(activity: dict[str, Any]) -> ActivitySignature | Non
     return ActivitySignature(start_time=start_time, duration_s=duration)
 
 
-def existing_signatures(
-    intervals_activities: list[dict[str, Any]],
-) -> list[ActivitySignature]:
+def existing_signatures(intervals_activities: list[dict[str, Any]]) -> list[ActivitySignature]:
     """Start time + moving duration of every activity already on intervals.icu."""
     signatures = []
     for a in intervals_activities:
@@ -64,10 +50,7 @@ def existing_signatures(
     return signatures
 
 
-def find_new_activities(
-    garmin_activities: list[dict[str, Any]],
-    existing: list[ActivitySignature],
-) -> list[dict[str, Any]]:
+def find_new_activities(garmin_activities: list[dict[str, Any]], existing: list[ActivitySignature]) -> list[dict[str, Any]]:
     """Garmin activities not already present on intervals.icu.
 
     An activity whose start time can't be read is kept rather than dropped -

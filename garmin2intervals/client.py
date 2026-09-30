@@ -1,18 +1,3 @@
-"""Garmin Connect authentication and activity fetching.
-
-Garmin child/family accounts can't complete the browser SSO/OAuth flow that
-intervals.icu's own Garmin partner integration relies on (the `garminconnect`
-library detects and rejects this explicitly - see its client.py's "Widget
-login: account may be a Garmin child/family account" warning) - that's why
-that native sync doesn't work for a child account.
-
-They *can* still log in directly with their own email/password through the
-library's other strategies (the ones behind the mobile app rather than the
-web SSO widget), confirmed against a real child account. So this client just
-logs in with the child's own credentials - no parent-account involvement
-needed.
-"""
-
 import io
 import logging
 import zipfile

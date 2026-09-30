@@ -1,13 +1,3 @@
-"""intervals.icu API client.
-
-Only fetching is implemented so far (used by sync.py to dedup against
-Garmin's activity list) - uploading is future work, see README's Status
-section.
-
-Auth is HTTP Basic with the literal username "API_KEY" and the actual key as
-the password - that's intervals.icu's documented scheme, not a placeholder.
-"""
-
 from typing import Any
 
 import requests

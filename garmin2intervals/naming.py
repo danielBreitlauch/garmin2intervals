@@ -1,15 +1,3 @@
-"""Builds a human-readable filename for a downloaded activity from its FIT
-data: start date/time, start-location place name (best-effort, via reverse
-geocoding), and duration - each included only when the FIT file actually has
-it (e.g. an indoor trainer ride has no GPS, so no location).
-
-FIT timestamps are UTC. The local wall-clock start time is recovered from the
-`activity` message's `local_timestamp` field, which Garmin devices compute
-from their configured timezone - `local_timestamp - timestamp` is the offset
-FIT expects callers to apply to every other timestamp in the file (there's no
-explicit timezone name/offset field).
-"""
-
 import io
 import logging
 import re
