@@ -1,0 +1,17 @@
+services:
+  sync:
+    build: .
+    image: garmin2intervals:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      SYNC_INTERVAL_SECONDS: "1800"
+    volumes:
+      - ./activities:/app/activities
+      - ./.garmin_tokens:/app/.garmin_tokens
+    # ./activities and ./.garmin_tokens are bind-mounted from the host, and Docker does not
+    # remap file ownership across that mount - the image's `app` user can't write into
+    # directories owned by whatever host user/UID created them. Set HOST_UID/HOST_GID in
+    # .env to `id -u`/`id -g` on the machine running compose (see .env.example).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"

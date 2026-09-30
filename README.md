@@ -30,8 +30,9 @@ involvement is needed.
       local start time, so re-running only downloads what's actually new -
       see `garmin2intervals/intervals.py` / `sync.py` - verified against the
       real account (13 pre-existing September activities correctly excluded)
+- [x] Dockerfile + docker-compose.yml to run the sync as a polling loop -
+      see "Running with Docker" below
 - [ ] intervals.icu upload client (only fetching is implemented so far)
-- [ ] Scheduling
 
 ## Setup
 
@@ -53,3 +54,26 @@ uv run garmin2intervals-smoke-test
 # Downloads Garmin activities not already on intervals.icu into ./activities/
 uv run garmin2intervals-download-activities
 ```
+
+## Running with Docker
+
+Garmin has no push/webhook or long-poll API available to this unofficial
+client (the official Health API does, but that requires the same partner
+OAuth relationship that's blocked for a child account - see "Why this
+exists"), so the container just polls `garmin2intervals-download-activities`
+on an interval (`SYNC_INTERVAL_SECONDS`, default 1800s) - see `entrypoint.sh`.
+
+Complete the first (possibly MFA) login on the host first, via the manual
+smoke test above - that's what creates `.garmin_tokens/`, which is
+bind-mounted into the container so it doesn't need to repeat that login:
+
+```
+cp .env.example .env   # fill in credentials, plus HOST_UID/HOST_GID (`id -u`/`id -g`)
+uv run garmin2intervals-smoke-test   # first login, completes MFA if needed
+docker compose up -d
+docker compose logs -f
+```
+
+Downloaded activities land in `./activities/` on the host either way (both
+`GARMINTOKENS` and `ACTIVITIES_DIR` are bind-mounted, not container-internal
+state).

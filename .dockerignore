@@ -1,0 +1,12 @@
+.git
+.venv
+.devenv
+.direnv
+.pyc
+.pytest_cache/
+__pycache__/
+*.pyc
+.env
+.garmin_tokens/
+activities/
+tests/
