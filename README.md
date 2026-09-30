@@ -19,24 +19,6 @@ widget) - confirmed working end-to-end against a real child account via
 So this project logs in directly as the child account; no parent-account
 involvement is needed.
 
-## Status
-
-- [x] Project scaffold (devenv/uv/pyproject)
-- [x] Garmin Connect login (token-cached, MFA-aware) and activity fetching -
-      see `garmin2intervals/client.py` - verified against a real child account
-- [x] Download activities as FIT files, renamed by date/location/duration -
-      see `garmin2intervals/naming.py`
-- [x] intervals.icu activity fetch + dedup against Garmin's activity list by
-      local start time and moving duration, so re-running only downloads
-      what's actually new - see `garmin2intervals/intervals.py` / `sync.py`
-- [x] Dockerfile + docker-compose.yml to run the sync as a polling loop -
-      see "Running with Docker" below
-- [x] intervals.icu upload - `IntervalsClient.upload_activity()`, wired into
-      `garmin2intervals-download-activities` - verified end-to-end against
-      the real accounts: a genuinely new Garmin activity was downloaded,
-      uploaded, confirmed present on intervals.icu with the right name/type,
-      and a second run correctly saw it as already synced (no re-upload)
-
 ## Setup
 
 ```
@@ -61,11 +43,7 @@ uv run garmin2intervals-download-activities
 
 ## Running with Docker
 
-Garmin has no push/webhook or long-poll API available to this unofficial
-client (the official Health API does, but that requires the same partner
-OAuth relationship that's blocked for a child account - see "Why this
-exists"), so the container just polls `garmin2intervals-download-activities`
-on an interval (`SYNC_INTERVAL_SECONDS`, default 1800s) - see `entrypoint.sh`.
+The container polls `garmin2intervals-download-activities` on an interval (`SYNC_INTERVAL_SECONDS`, default 1800s) - see `entrypoint.sh`.
 
 Complete the first (possibly MFA) login on the host first, via the manual
 smoke test above - that's what creates `.garmin_tokens/`, which is

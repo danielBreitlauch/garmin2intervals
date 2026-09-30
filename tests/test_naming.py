@@ -15,14 +15,19 @@ from garmin2intervals.naming import (
 FIXTURE = Path(__file__).parent / "fixtures" / "sample.fit"
 
 
-def test_read_fit_summary_parses_real_file():
+def test_read_fit_summary_parses_synthetic_fixture():
+    """sample.fit is synthetic (see fixtures/generate_sample_fit.py), not a
+    real activity - fabricated start time/duration/distance/GPS ("null
+    island", 0, 0), used only to exercise the real fitparse session/activity
+    parsing path.
+    """
     summary = read_fit_summary(FIXTURE.read_bytes())
 
-    assert summary.start_time_local == datetime(2026, 9, 20, 11, 10, 50)
-    assert summary.duration_s == 1045.652
-    assert summary.distance_m == 7128.18
-    assert summary.start_lat == 626770921 * (180 / 2**31)
-    assert summary.start_lon == 163570700 * (180 / 2**31)
+    assert summary.start_time_local == datetime(2020, 1, 1, 11, 0, 0)
+    assert summary.duration_s == 1800.0
+    assert summary.distance_m == 12345.6
+    assert summary.start_lat == 0.0
+    assert summary.start_lon == 0.0
 
 
 def test_build_filename_includes_all_available_parts():
